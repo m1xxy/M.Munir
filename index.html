@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.Munir | Premium Kulfa & Ice Cream Machines</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans:['Inter', 'sans-serif'],
+                        akira:['Syncopate', 'sans-serif'], 
+                        quote:['Playfair Display', 'serif'],
+                        iosarabic:['"SF Pro Arabic"', '".SF Arabic"', '"SF Arabic"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Noto Sans Arabic"', 'sans-serif']
+                    },
+                    colors: {
+                        cream: '#F8F5F0',
+                        creamDark: '#EAE4D9',
+                        luxGreen: { 
+                            DEFAULT: '#134021', 
+                            light: '#1e5e33', 
+                            dark: '#0a2412' 
+                        },
+                        gold: { DEFAULT: '#d4af37' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        body {
+            background-color: #F8F5F0; 
+            color: #0a2412;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(19, 64, 33, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #134021; }
+
+        /* MacOS Ambient Background Blurs */
+        .ambient-blur {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: drift 20s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5vw, 5vh) scale(1.1); }
+            100% { transform: translate(-5vw, 10vh) scale(0.9); }
+        }
+
+        /* iOS/MacOS Glassmorphism */
+        .mac-glass {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+        }
+        
+        .mac-glass-dark {
+            background: rgba(10, 36, 18, 0.85); 
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-glass {
+            background: rgba(248, 245, 240, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(19, 64, 33, 0.1);
+        }
+
+        /* ------------------------------------
+           Contact Us Button Glow Animation
+           ------------------------------------ */
+        .btn-glow {
+            animation: customGlow 2.5s infinite;
+        }
+        @keyframes customGlow {
+            0% { box-shadow: 0 0 15px rgba(19, 64, 33, 0.6), 0 0 0 0 rgba(19, 64, 33, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(19, 64, 33, 0.9), 0 0 0 15px rgba(19, 64, 33, 0); }
+            100% { box-shadow: 0 0 15px rgba(19, 64, 33, 0.6), 0 0 0 0 rgba(19, 64, 33, 0); }
+        }
+
+        /* ------------------------------------
+           Ultra-Realistic 3D Metallic Card 
+           ------------------------------------ */
+        .perspective-container { 
+            perspective: 1500px; 
+            transform-style: preserve-3d;
+        }
+        
+        .float-wrapper {
+            transform-style: preserve-3d;
+        }
+
+        .card-3d {
+            transform-style: preserve-3d;
+            cursor: grab;
+            position: relative;
+            will-change: transform;
+            box-shadow: 0 30px 60px -15px rgba(10, 36, 18, 0.6);
+            border-radius: 1.2rem;
+        }
+        .card-3d:active { cursor: grabbing; }
+        
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 1.2rem;
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f2db8f 0%, #c19a3b 25%, #dcb348 50%, #99741e 75%, #ebd383 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+        .card-back { transform: rotateY(180deg); }
+
+        .metal-grain {
+            position: absolute;
+            inset: 0;
+            opacity: 0.25;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
+
+        .amex-border {
+            position: absolute;
+            inset: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 0.6rem;
+            pointer-events: none;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.1), 0 0 4px rgba(0,0,0,0.1);
+        }
+
+        .glare {
+            position: absolute;
+            inset: -100%;
+            background: linear-gradient(
+                115deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.1) 40%, 
+                rgba(255, 255, 255, 0.7) 50%, 
+                rgba(255, 255, 255, 0.1) 60%, 
+                transparent 100%
+            );
+            transform: translateX(0%);
+            will-change: transform;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        .hover-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease; }
+        .hover-lift:hover { 
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(10, 36, 18, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-luxGreen selection:text-white">
+
+    <!-- Ambient Background Elements -->
+    <div class="ambient-blur w-[40vw] h-[40vw] top-[-10vh] left-[-10vw] bg-white"></div>
+    <div class="ambient-blur w-[50vw] h-[50vw] bottom-[-20vh] right-[-10vw] bg-luxGreen/15" style="animation-delay: -5s;"></div>
+    <div class="ambient-blur w-[30vw] h-[30vw] top-[40vh] left-[30vw] bg-gold/20" style="animation-delay: -10s;"></div>
+
+    <!-- Header Navigation -->
+    <header class="fixed top-0 w-full z-50 nav-glass transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Brand -->
+                <div class="flex items-center gap-3 cursor-pointer group">
+                    <svg class="h-8 w-8 text-luxGreen group-hover:scale-110 transition-transform" viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M72.5,41.4 L67.8,38.1 C66.1,36.9 63.8,36.4 61.8,37.2 L55.5,39.6 L53.1,32.2 C52.2,29.3 49.5,27.3 46.4,27.3 C44.1,27.3 41.5,28.6 40.2,30.8 L36.7,36.9 L32.3,37.2 C28.9,37.4 26.2,40.4 26.2,43.8 C26.2,46.5 28.1,48.8 30.7,49.5 L36.9,51.2 L35.2,58.8 L28.8,61.4 C25.1,62.8 22.8,66.6 23.3,70.6 L24.6,81.3 C24.9,83.9 27.4,85.6 29.9,85.1 L35.5,84 C38.6,83.4 40.8,80.6 40.8,77.4 L40.8,66.2 L49.5,66.2 C52.7,66.2 55.6,64.2 56.8,61.2 L61.1,50.7 L72.1,57.1 C74.2,58.3 76.8,57.8 78.4,56 L85.5,47.8 C87.3,45.7 87,42.5 84.8,40.8 L72.5,41.4 Z M48.5,17.4 C51.8,17.4 54.5,14.7 54.5,11.4 C54.5,8.1 51.8,5.4 48.5,5.4 C45.2,5.4 42.5,8.1 42.5,11.4 C42.5,14.7 45.2,17.4 48.5,17.4 Z"/>
+                    </svg>
+                    <span class="font-bold text-2xl tracking-widest text-luxGreen-dark drop-shadow-sm">M.MUNIR</span>
+                </div>
+                <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                    <a href="#expertise" class="text-luxGreen-dark hover:text-gold transition">Machinery</a>
+                    <a href="#wholesaler" class="text-luxGreen-dark hover:text-gold transition">Wholesale</a>
+                    <a href="#contact-section" class="text-luxGreen-dark hover:text-gold transition">Contact</a>
+                </nav>
+                <div>
+                    <a href="#contact-section" class="bg-luxGreen text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-luxGreen-dark transition shadow-lg hover:shadow-luxGreen/30">
+                        Let's Talk
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with 3D Gold Card -->
+    <section class="relative min-h-screen flex flex-col items-center justify-center pt-24 pb-12 perspective-container z-10">
+        
+        <div class="text-center mb-12 px-4 z-20">
+            <h1 class="gsap-hero text-5xl md:text-7xl font-bold tracking-tight text-luxGreen-dark mb-6" style="opacity: 0; transform: translateY(30px);">
+                We engineer <br><span class="text-luxGreen">perfect freezing.</span>
+            </h1>
+            <p class="gsap-hero text-xl md:text-2xl text-luxGreen/80 font-light max-w-2xl mx-auto" style="opacity: 0; transform: translateY(30px);">
+                The leading manufacturer of premium, industrial-grade Kulfa and Ice Cream machines. Built for absolute durability and authentic taste.
+            </p>
+        </div>
+
+        <div class="float-wrapper w-[90vw] max-w-[480px] aspect-[1.58/1] relative mx-auto z-30 gsap-hero" style="opacity: 0; transform: translateY(50px);">
+            <div id="gold-card" class="card-3d w-full h-full">
+                
+                <!-- Front Face -->
+                <div class="card-face card-front p-6 md:p-8 flex flex-col justify-between">
+                    <div class="metal-grain"></div>
+                    <div class="amex-border"></div>
+                    <div class="glare" id="glare-front"></div>
+                    
+                    <div class="flex justify-between items-start w-full z-10 relative">
+                        <div class="w-12 h-[38px] rounded-md bg-gradient-to-br from-gray-200 to-gray-400 border border-gray-500 shadow-[inset_0_1px_4px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.3)] relative overflow-hidden flex flex-col justify-evenly px-1">
+                            <div class="w-full h-[1px] bg-gray-600/60 shadow-[0_1px_0_rgba(255,255,255,0.8)]"></div>
+                            <div class="w-full h-[1px] bg-gray-600/60 shadow-[0_1px_0_rgba(255,255,255,0.8)]"></div>
+                            <div class="w-full h-[1px] bg-gray-600/60 shadow-[0_1px_0_rgba(255,255,255,0.8)]"></div>
+                            <div class="absolute inset-0 flex justify-center items-center">
+                                <div class="w-[1px] h-full bg-gray-600/60 shadow-[1px_0_0_rgba(255,255,255,0.8)]"></div>
+                                <div class="w-[60%] h-[60%] border border-gray-600/50 rounded-full absolute"></div>
+                            </div>
+                        </div>
+
+                        <svg class="h-10 w-10 text-black/80 drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]" viewBox="0 0 100 100" fill="currentColor">
+                            <path d="M72.5,41.4 L67.8,38.1 C66.1,36.9 63.8,36.4 61.8,37.2 L55.5,39.6 L53.1,32.2 C52.2,29.3 49.5,27.3 46.4,27.3 C44.1,27.3 41.5,28.6 40.2,30.8 L36.7,36.9 L32.3,37.2 C28.9,37.4 26.2,40.4 26.2,43.8 C26.2,46.5 28.1,48.8 30.7,49.5 L36.9,51.2 L35.2,58.8 L28.8,61.4 C25.1,62.8 22.8,66.6 23.3,70.6 L24.6,81.3 C24.9,83.9 27.4,85.6 29.9,85.1 L35.5,84 C38.6,83.4 40.8,80.6 40.8,77.4 L40.8,66.2 L49.5,66.2 C52.7,66.2 55.6,64.2 56.8,61.2 L61.1,50.7 L72.1,57.1 C74.2,58.3 76.8,57.8 78.4,56 L85.5,47.8 C87.3,45.7 87,42.5 84.8,40.8 L72.5,41.4 Z M48.5,17.4 C51.8,17.4 54.5,14.7 54.5,11.4 C54.5,8.1 51.8,5.4 48.5,5.4 C45.2,5.4 42.5,8.1 42.5,11.4 C42.5,14.7 45.2,17.4 48.5,17.4 Z"/>
+                        </svg>
+                    </div>
+
+                    <!-- Front Texts in Black with white drop-shadow for a stamped ink effect -->
+                    <div class="z-10 w-full text-center mt-auto mb-4 relative">
+                        <h2 class="font-akira text-[8vw] md:text-4xl tracking-widest leading-none uppercase text-black/90 drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">M.MUNIR</h2>
+                        <h3 class="font-akira text-[3.5vw] md:text-lg tracking-[0.2em] mt-3 ml-2 text-black/90 drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">0300 6427157</h3>
+                    </div>
+                    
+                    <div class="z-10 text-[0.65rem] md:text-xs text-black/60 font-bold uppercase tracking-[0.15em] drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">
+                        Premium Machinery
+                    </div>
+                </div>
+
+                <!-- Back Face -->
+                <div class="card-face card-back p-0 flex flex-col relative">
+                    <div class="metal-grain"></div>
+                    <div class="glare" id="glare-back"></div>
+                    
+                    <div class="w-full h-12 md:h-14 bg-gradient-to-b from-[#111] to-[#222] mt-6 shadow-[0_2px_4px_rgba(0,0,0,0.3)] z-10 relative"></div>
+                    <div class="w-full h-2 bg-gradient-to-r from-green-200 via-yellow-200 to-green-400 opacity-30 mix-blend-color-dodge z-10 shadow-[0_1px_1px_rgba(255,255,255,0.2)]"></div>
+
+                    <!-- Muhammad Munir Khokhar Name on Back -->
+                    <div class="z-20 mt-10 text-center px-8 relative flex-1 flex flex-col justify-center">
+                        <p class="font-akira text-xl md:text-2xl text-black/90 tracking-widest leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)] uppercase">
+                            Muhammad Munir Khokhar
+                        </p>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-black/60 mt-3 drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">
+                            Authorized Signature
+                        </p>
+                    </div>
+
+                    <div class="flex justify-center pb-6 z-20">
+                        <svg class="h-6 w-6 text-black/40 drop-shadow-[0_1px_0_rgba(255,255,255,0.3)]" viewBox="0 0 100 100" fill="currentColor">
+                            <path d="M72.5,41.4 L67.8,38.1 C66.1,36.9 63.8,36.4 61.8,37.2 L55.5,39.6 L53.1,32.2 C52.2,29.3 49.5,27.3 46.4,27.3 C44.1,27.3 41.5,28.6 40.2,30.8 L36.7,36.9 L32.3,37.2 C28.9,37.4 26.2,40.4 26.2,43.8 C26.2,46.5 28.1,48.8 30.7,49.5 L36.9,51.2 L35.2,58.8 L28.8,61.4 C25.1,62.8 22.8,66.6 23.3,70.6 L24.6,81.3 C24.9,83.9 27.4,85.6 29.9,85.1 L35.5,84 C38.6,83.4 40.8,80.6 40.8,77.4 L40.8,66.2 L49.5,66.2 C52.7,66.2 55.6,64.2 56.8,61.2 L61.1,50.7 L72.1,57.1 C74.2,58.3 76.8,57.8 78.4,56 L85.5,47.8 C87.3,45.7 87,42.5 84.8,40.8 L72.5,41.4 Z M48.5,17.4 C51.8,17.4 54.5,14.7 54.5,11.4 C54.5,8.1 51.8,5.4 48.5,5.4 C45.2,5.4 42.5,8.1 42.5,11.4 C42.5,14.7 45.2,17.4 48.5,17.4 Z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12 text-center text-sm font-semibold text-luxGreen/60 uppercase tracking-[0.2em] animate-pulse z-20 select-none">
+            <span class="mr-2">←</span> Drag to rotate <span class="ml-2">→</span>
+        </div>
+    </section>
+
+    <!-- Services / Machinery Showcase Bento Grid -->
+    <section id="expertise" class="py-24 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-16 md:text-center">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-luxGreen-dark mb-4">Our Machinery.</h2>
+                <p class="text-xl text-luxGreen/80 font-light">Engineered for commercial dominance and perfect flavor extraction.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+                
+                <!-- IMAGE 1 SHOWCASE -->
+                <div class="service-card lg:col-span-2 mac-glass rounded-[2rem] p-0 hover-lift flex flex-col justify-between group relative overflow-hidden h-[350px] md:h-auto">
+                    <img src="https://i.ibb.co/JRry2j7y/IMG-20260401-140949.jpg" alt="Ice Cream Machine" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-8 w-full z-10">
+                        <h3 class="text-3xl font-bold mb-3 text-white">Industrial Output</h3>
+                        <p class="text-gray-200 font-light leading-relaxed max-w-md">
+                            Heavy-duty compressors designed for massive production scales without breaking a sweat.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="service-card mac-glass rounded-[2rem] p-8 hover-lift flex flex-col justify-between group">
+                    <div class="w-14 h-14 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:text-luxGreen transition-colors">❄️</div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-luxGreen-dark">Precision Freezing</h3>
+                        <p class="text-luxGreen/80 font-light text-sm leading-relaxed">
+                            Advanced thermodynamic controls ensure your mix hits the perfect freezing point every single time.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="service-card mac-glass rounded-[2rem] p-8 hover-lift flex flex-col justify-between group">
+                    <div class="w-14 h-14 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:text-luxGreen transition-colors">⚡</div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-luxGreen-dark">Energy Efficient</h3>
+                        <p class="text-luxGreen/80 font-light text-sm leading-relaxed">
+                            Smart power distribution lowers electrical overheads while maintaining maximum output capacity.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="service-card mac-glass rounded-[2rem] p-8 hover-lift flex flex-col justify-between group">
+                    <div class="w-14 h-14 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:text-luxGreen transition-colors">⚙️</div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-luxGreen-dark">Robust Mechanics</h3>
+                        <p class="text-luxGreen/80 font-light text-sm leading-relaxed">
+                            Stainless steel food-grade builds. Zero corrosion, easy maintenance, and lifetime reliability.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- IMAGE 2 SHOWCASE -->
+                <div class="service-card lg:col-span-2 mac-glass rounded-[2rem] p-0 hover-lift flex flex-col justify-between group relative overflow-hidden h-[350px] md:h-auto">
+                    <img src="https://i.ibb.co/Sgmf4Mg/IMG-20260405-113710.jpg" alt="Kulfa Machine Components" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-8 w-full z-10">
+                        <h3 class="text-3xl font-bold mb-3 text-white">Authentic Kulfa Tech</h3>
+                        <p class="text-gray-200 font-light leading-relaxed max-w-md">
+                            Engineered to preserve the traditional, rich texture of authentic Kulfa at commercial volumes.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="service-card mac-glass rounded-[2rem] p-8 hover-lift flex flex-col justify-between group">
+                    <div class="w-14 h-14 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm group-hover:text-luxGreen transition-colors">🤝</div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-luxGreen-dark">Nationwide Supply</h3>
+                        <p class="text-luxGreen/80 font-light text-sm leading-relaxed">
+                            Delivering industrial excellence safely and securely to any commercial setup across the country.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW WHOLESALER SECTION -->
+    <section id="wholesaler" class="py-24 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mac-glass-dark rounded-[2.5rem] p-10 md:p-16 flex flex-col md:flex-row items-center gap-12 shadow-2xl relative overflow-hidden">
+                
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-luxGreen-light rounded-full mix-blend-screen filter blur-[90px] opacity-20"></div>
+                
+                <div class="flex-1 text-white relative z-10">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold tracking-widest uppercase mb-6 text-cream">
+                        Direct Factory Rates
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
+                        Setup your business with top-tier machinery at wholesale prices.
+                    </h2>
+                    <p class="text-xl text-gray-300 font-light mb-8">
+                        Buy heavy-duty commercial Ice Cream and Kulfa machines at exclusive factory rates. We ensure pure quality, massive scale, and absolute reliability.
+                    </p>
+                    
+                    <!-- Urdu text in SF Arabic Font -->
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+                        <p lang="ur" dir="rtl" class="font-iosarabic text-xl md:text-2xl font-medium leading-relaxed text-gray-200">
+                            ہماری فیکٹری میں ہر قسم کی کمرشل آئس کریم اور کلفہ مشینیں انتہائی مناسب قیمتوں پر دستیاب ہیں۔ بہترین کوالٹی اور پائیداری کی ضمانت کے ساتھ اپنا آرڈر بک کروانے کے لیے آج ہی ہم سے رابطہ کریں اور اپنے کاروبار کو منافع بخش بنائیں۔
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ROUNDED RECTANGLE BUTTON -->
+                <div class="shrink-0 relative z-10 mt-6 md:mt-0">
+                    <a href="https://wa.me/923006427157" target="_blank" class="group relative flex items-center justify-center gap-3 px-10 py-5 bg-white rounded-xl text-luxGreen-dark hover:text-white hover:bg-luxGreen transition-all duration-500 shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(19,64,33,0.6)] transform hover:scale-105">
+                        <span class="block font-bold text-xl">Get Rates</span>
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.031 0C5.397 0 0 5.392 0 12.023c0 2.124.553 4.195 1.603 6.01L.226 23.4l5.502-1.444a11.968 11.968 0 006.303 1.776h.005c6.634 0 12.031-5.392 12.031-12.023A12.02 12.02 0 0020.536 3.52 11.983 11.983 0 0012.031 0zm0 21.69c-1.796 0-3.555-.483-5.101-1.398l-.366-.217-3.792.994.996-3.696-.238-.379A9.998 9.998 0 012.043 12.02c0-5.507 4.483-9.987 9.993-9.987 2.668 0 5.176 1.04 7.062 2.927A9.957 9.957 0 0122.023 12.02c0 5.507-4.484 9.988-9.987 9.988l-.005-4.318zm5.484-7.498c-.3-.15-1.774-.876-2.048-.976-.275-.1-.475-.15-.675.15-.2.301-.774.976-.949 1.176-.175.2-.35.226-.65.076-2.052-1.03-3.415-1.928-4.717-3.652-.175-.232-.018-.358.132-.508.135-.135.3-.351.45-.526.15-.175.2-.301.3-.501.1-.2.05-.376-.025-.526-.075-.15-.675-1.626-.925-2.227-.243-.585-.49-.505-.675-.515-.175-.008-.375-.008-.575-.008-.2 0-.525.075-.8.375-.275.3-1.05 1.026-1.05 2.502 0 1.477 1.075 2.903 1.225 3.103.15.2 2.115 3.228 5.123 4.528.716.31 1.275.495 1.711.634.718.228 1.371.196 1.888.118.577-.087 1.774-.726 2.024-1.426.25-.7.25-1.3.175-1.426-.075-.126-.275-.201-.575-.351z"/>
+                        </svg>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action / Contact -->
+    <section id="contact-section" class="py-32 relative overflow-hidden z-10">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-5xl md:text-7xl font-bold tracking-tight text-luxGreen-dark mb-8">Ready to upgrade?</h2>
+            <p class="text-xl text-luxGreen/80 font-light mb-12">Partner with M.Munir and elevate your commercial output to the absolute pinnacle of the industry.</p>
+            
+            <!-- RECTANGULAR & GLOWING CONTACT US BUTTON -->
+            <a href="https://wa.me/923006427157" target="_blank" class="btn-glow inline-flex items-center gap-4 bg-luxGreen-dark text-white px-10 py-5 rounded-xl transition-all duration-300 transform hover:-translate-y-1">
+                <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.031 0C5.397 0 0 5.392 0 12.023c0 2.124.553 4.195 1.603 6.01L.226 23.4l5.502-1.444a11.968 11.968 0 006.303 1.776h.005c6.634 0 12.031-5.392 12.031-12.023A12.02 12.02 0 0020.536 3.52 11.983 11.983 0 0012.031 0zm0 21.69c-1.796 0-3.555-.483-5.101-1.398l-.366-.217-3.792.994.996-3.696-.238-.379A9.998 9.998 0 012.043 12.02c0-5.507 4.483-9.987 9.993-9.987 2.668 0 5.176 1.04 7.062 2.927A9.957 9.957 0 0122.023 12.02c0 5.507-4.484 9.988-9.987 9.988l-.005-4.318zm5.484-7.498c-.3-.15-1.774-.876-2.048-.976-.275-.1-.475-.15-.675.15-.2.301-.774.976-.949 1.176-.175.2-.35.226-.65.076-2.052-1.03-3.415-1.928-4.717-3.652-.175-.232-.018-.358.132-.508.135-.135.3-.351.45-.526.15-.175.2-.301.3-.501.1-.2.05-.376-.025-.526-.075-.15-.675-1.626-.925-2.227-.243-.585-.49-.505-.675-.515-.175-.008-.375-.008-.575-.008-.2 0-.525.075-.8.375-.275.3-1.05 1.026-1.05 2.502 0 1.477 1.075 2.903 1.225 3.103.15.2 2.115 3.228 5.123 4.528.716.31 1.275.495 1.711.634.718.228 1.371.196 1.888.118.577-.087 1.774-.726 2.024-1.426.25-.7.25-1.3.175-1.426-.075-.126-.275-.201-.575-.351z"/>
+                </svg>
+                <div class="flex flex-col items-start text-left">
+                    <span class="text-xs uppercase tracking-widest text-white/70 font-semibold mb-0.5">Contact Us</span>
+                    <span class="text-xl font-bold tracking-wider">03006427157</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer with "Visit Our Website" Button -->
+    <footer id="contact" class="bg-transparent border-t border-luxGreen/10 py-12 text-center text-sm font-light z-10 relative">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center text-luxGreen/70">
+            <div class="mb-6">
+                <svg class="h-6 w-6 text-luxGreen/50 mx-auto" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M72.5,41.4 L67.8,38.1 C66.1,36.9 63.8,36.4 61.8,37.2 L55.5,39.6 L53.1,32.2 C52.2,29.3 49.5,27.3 46.4,27.3 C44.1,27.3 41.5,28.6 40.2,30.8 L36.7,36.9 L32.3,37.2 C28.9,37.4 26.2,40.4 26.2,43.8 C26.2,46.5 28.1,48.8 30.7,49.5 L36.9,51.2 L35.2,58.8 L28.8,61.4 C25.1,62.8 22.8,66.6 23.3,70.6 L24.6,81.3 C24.9,83.9 27.4,85.6 29.9,85.1 L35.5,84 C38.6,83.4 40.8,80.6 40.8,77.4 L40.8,66.2 L49.5,66.2 C52.7,66.2 55.6,64.2 56.8,61.2 L61.1,50.7 L72.1,57.1 C74.2,58.3 76.8,57.8 78.4,56 L85.5,47.8 C87.3,45.7 87,42.5 84.8,40.8 L72.5,41.4 Z M48.5,17.4 C51.8,17.4 54.5,14.7 54.5,11.4 C54.5,8.1 51.8,5.4 48.5,5.4 C45.2,5.4 42.5,8.1 42.5,11.4 C42.5,14.7 45.2,17.4 48.5,17.4 Z"/>
+                </svg>
+            </div>
+            
+            <p class="mb-6">&copy; 2026 M.MUNIR. All rights reserved.</p>
+
+            <a href="https://yalg4arrshop.netlify.app/" target="_blank" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-luxGreen/30 text-luxGreen-dark font-medium hover:bg-luxGreen hover:text-white hover:border-luxGreen transition-all duration-300 shadow-sm hover:shadow-md">
+                Visit Our Store
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+            </a>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.to(".gsap-hero", { y: 0, opacity: 1, duration: 1.2, stagger: 0.2, ease: "power4.out" });
+
+            gsap.from(".service-card", {
+                scrollTrigger: { trigger: "#expertise", start: "top 80%" },
+                y: 60, opacity: 0, duration: 1, stagger: 0.1, ease: "power3.out"
+            });
+            
+            gsap.from("#wholesaler .mac-glass-dark", {
+                scrollTrigger: { trigger: "#wholesaler", start: "top 80%" },
+                y: 40, opacity: 0, duration: 1, ease: "power3.out"
+            });
+
+            gsap.to(".float-wrapper", {
+                y: "-=15", duration: 2.5, repeat: -1, yoyo: true, ease: "sine.inOut"
+            });
+        });
+
+        // Buttery Smooth Physics Engine
+        const card = document.getElementById('gold-card');
+        const glareFront = document.getElementById('glare-front');
+        const glareBack = document.getElementById('glare-back');
+        
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        
+        let targetRotX = 0;
+        let targetRotY = 0;
+        let lastTargetRotY = 0;
+
+        let currentRotX = 0;
+        let currentRotY = 0;
+
+        const LERP_FACTOR = 0.08; 
+        const DRAG_SENSITIVITY = 0.6;
+        
+        const startDrag = (e) => {
+            isDragging = true;
+            startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+            startY = e.type.includes('mouse') ? e.pageY : e.touches[0].pageY;
+            lastTargetRotY = targetRotY;
+            document.body.style.cursor = 'grabbing';
+        };
+
+        const drag = (e) => {
+            if (!isDragging) return;
+            if(e.type.includes('touch')) e.preventDefault(); 
+            
+            const x = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+            const y = e.type.includes('mouse') ? e.pageY : e.touches[0].pageY;
+            
+            const deltaX = x - startX;
+            const deltaY = y - startY;
+            
+            targetRotY = lastTargetRotY + (deltaX * DRAG_SENSITIVITY);
+            targetRotX = -(deltaY * 0.1); 
+        };
+
+        const stopDrag = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            document.body.style.cursor = 'default';
+            
+            const snap = Math.round(targetRotY / 180) * 180;
+            targetRotY = snap;
+            targetRotX = 0; 
+        };
+
+        const handleMouseMove = (e) => {
+            if (isDragging) return;
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const mouseX = e.clientX - centerX;
+            const mouseY = e.clientY - centerY;
+            
+            const snapBase = Math.round(targetRotY / 180) * 180;
+            targetRotX = -(mouseY / rect.height) * 15; 
+            targetRotY = snapBase + (mouseX / rect.width) * 15; 
+        };
+        
+        const handleMouseLeave = () => {
+            if (!isDragging) {
+                targetRotX = 0;
+                targetRotY = Math.round(targetRotY / 180) * 180;
+            }
+        };
+
+        card.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', drag, { passive: false });
+        window.addEventListener('mouseup', stopDrag);
+        
+        card.addEventListener('mousemove', handleMouseMove);
+        card.addEventListener('mouseleave', handleMouseLeave);
+
+        card.addEventListener('touchstart', startDrag, { passive: true });
+        window.addEventListener('touchmove', drag, { passive: false });
+        window.addEventListener('touchend', stopDrag);
+
+        function updatePhysics() {
+            currentRotX += (targetRotX - currentRotX) * LERP_FACTOR;
+            currentRotY += (targetRotY - currentRotY) * LERP_FACTOR;
+
+            card.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+            
+            const glarePos = (currentRotY % 360) / 2; 
+            const glareTilt = currentRotX * 2;
+            glareFront.style.transform = `translateX(${glarePos + glareTilt}%)`;
+            glareBack.style.transform = `translateX(${-glarePos + glareTilt}%)`;
+
+            requestAnimationFrame(updatePhysics);
+        }
+        
+        updatePhysics();
+
+    </script>
+</body>
+</html>
